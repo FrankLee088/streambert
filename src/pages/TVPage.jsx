@@ -1,3 +1,4 @@
+import PlaybackQuality from "../components/PlaybackQuality";
 import {
   useState,
   useEffect,
@@ -2093,6 +2094,13 @@ export default function TVPage({
                 />
                 {/* Left-side overlay button group, flex row, no fixed px offsets */}
                 <div className="player-overlay-group">
+                  <PlaybackQuality
+                    webviewRef={webviewRef}
+                    pipIdRef={pipWebContentsIdRef}
+                    pipOpen={pipOpen}
+                    defaultQuality={playerSettings?.quality}
+                    sourceKey={`${item.id}:${playerSource}:${playerEp?.season}:${playerEp?.episode}`}
+                  />
                   <button
                     ref={sourceRef}
                     className="player-overlay-btn"

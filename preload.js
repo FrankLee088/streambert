@@ -106,6 +106,8 @@ contextBridge.exposeInMainWorld("electron", {
   getCacheSize: () => ipcRenderer.invoke("get-cache-size"),
   getDownloadsSize: () => ipcRenderer.invoke("get-downloads-size"),
   clearAppCache: () => ipcRenderer.invoke("clear-app-cache"),
+  controlPlaybackQuality: (webContentsId, quality) =>
+    ipcRenderer.invoke("control-playback-quality", webContentsId, quality),
   queryVideoProgress: (webContentsId) =>
     ipcRenderer.invoke("query-video-progress", webContentsId),
   clearWatchData: () => ipcRenderer.invoke("clear-watch-data"),

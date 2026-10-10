@@ -40,6 +40,20 @@ A cross-platform Electron Desktop App to stream and download any Movie, TV Serie
 The Application mainly gets Video Streams from VidSrc (you can also Stream from videasy and vidking). <br></br>
 It fetches Information for Images, Info Texts, Search and Homepage from [tmdb](https://www.themoviedb.org/).
 
+### Playback quality
+
+Movie and TV players include an **Auto / Full HD (1080p) / 2K (1440p) / 4K (2160p)** selector.
+Choose a default under **Settings → Appearance → Default playback quality**, then click **Save**.
+Changing quality during playback does not change the saved default. The default is included in settings backups.
+
+Quality switching supports exposed HLS.js, JWPlayer, and Video.js quality-level interfaces,
+including players inside nested frames and pop-out windows. A source must actually provide
+the requested rendition. If it is unavailable or the embedded player keeps its controls private,
+Streambert leaves playback unchanged and shows a message; use the source's own quality menu
+when available. The selector does not upscale videos or guarantee 2K/4K availability.
+
+Run the quality adapter checks with `node --test tests/playerQuality.test.cjs`.
+
 ---
 
 ## Downloading

@@ -642,6 +642,27 @@ function register(getMainWindow, { writeSecretMigration }) {
     (_, { url }) => new Promise((resolve) => fetchImageSecure(url, resolve)),
   );
 
+  ipcMain.handle("control-playback-quality", async (event, webContentsId, requested) => {
+    const { webContents, session } = require("electron");
+    // Only our main UI may control players in the dedicated playback session.
+    if (event.sender !== getMainWindow()?.webContents ||
+        !Number.isInteger(webContentsId) ||
+        !["auto", "1080", "1440", "2160"].includes(requested)) return null;
+    const wc = webContents.fromId(webContentsId);
+    if (!wc || wc.isDestroyed() || wc.session !== session.fromPartition("persist:player")) return null;
+    const { controlQuality } = require("./playerQuality");
+    const script = `(${controlQuality.toString()})(${JSON.stringify(requested)})`;
+    let fallback = null;
+    for (const frame of wc.mainFrame?.framesInSubtree ?? []) {
+      try {
+        const result = await frame.executeJavaScript(script);
+        if (result?.supported) return result;
+        if (result && (!fallback || result.actualHeight > fallback.actualHeight)) fallback = result;
+      } catch {}
+    }
+    return fallback;
+  });
+
   // ── Query video progress across all webview frames ────────────────────────
   // executeJavaScript on a webview only reaches the top frame.
   // VidSrc / 2embed nest the player inside cross-origin iframes, iterate
