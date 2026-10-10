@@ -10,7 +10,11 @@
 4. 此为个人构建，没有 Apple Developer ID 签名或公证。如果 macOS 阻止打开，在“系统设置 → 隐私与安全性”中对这个应用选择“仍要打开”。
 5. 如果系统报告签名损坏，可在终端执行 `codesign --force --deep --sign - /Applications/Streambert.app` 进行本地临时签名后重试。此命令只修改该应用的签名，不关闭系统安全设置。
 
-收藏、观看记录和 API 配置使用原有的 Streambert 数据目录。升级脚本不会删除这些数据；不要把真实 API 令牌发送到聊天或提交到仓库。
+收藏、观看记录和 API 配置使用原有的 Streambert 数据目录。升级流程不删除这些数据。
+
+## 不等待安装包，直接运行源码
+
+在 GitHub 修复分支页面选择 Code → Download ZIP，解压。安装 Node.js 24 LTS 后，在终端输入 `bash `（末尾一个空格），把解压目录中的 `Start-macOS.command` 拖入终端，按回车。脚本安装锁文件中的依赖、构建前端并打开修复版，不需要手动修改代码。
 
 ## 播放与排查
 
