@@ -1,3 +1,4 @@
+import { QUALITY_OPTIONS, normalizeQuality } from "../components/PlaybackQuality";
 import { useState, useEffect, useRef } from "react";
 import UpdateModal from "../components/UpdateModal";
 import {
@@ -1268,6 +1269,9 @@ function AppearanceSection() {
   const [gamepadEnabled, setGamepadEnabled] = useState(
     () => storage.get(STORAGE_KEYS.GAMEPAD_ENABLED) !== false,
   );
+  const [playbackQuality, setPlaybackQuality] = useState(
+    () => normalizeQuality(storage.get(STORAGE_KEYS.PLAYBACK_QUALITY)),
+  );
   const [accentInPlayer, setAccentInPlayer] = useState(
     () => storage.get(STORAGE_KEYS.ACCENT_IN_PLAYER) !== false,
   );
@@ -1321,6 +1325,7 @@ function AppearanceSection() {
   const handleSave = () => {
     storage.set(STORAGE_KEYS.ACCENT_COLOR, accent);
     storage.set(STORAGE_KEYS.ACCENT_IN_PLAYER, accentInPlayer);
+    storage.set(STORAGE_KEYS.PLAYBACK_QUALITY, playbackQuality);
     storage.set(STORAGE_KEYS.FONT_SIZE, fontSize);
     storage.set(STORAGE_KEYS.COMPACT_MODE, compact ? 1 : 0);
     storage.set(STORAGE_KEYS.REDUCE_ANIMATIONS, noAnim ? 1 : 0);
@@ -1590,6 +1595,19 @@ function AppearanceSection() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div style={{ marginBottom: 24 }}>
+        <label htmlFor="default-playback-quality" style={{ display: "block", marginBottom: 10 }}>
+          Default playback quality
+        </label>
+        <select id="default-playback-quality" value={playbackQuality} onChange={e => setPlaybackQuality(e.target.value)}>
+          {QUALITY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+        <p style={{ fontSize: 12, color: "var(--text3)" }}>
+          Prefers this quality when the source exposes it. 2K/4K availability depends on the source.
+          You can switch quality in the player without changing this default.
+        </p>
       </div>
 
       {/* Font Size */}

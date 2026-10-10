@@ -19,10 +19,12 @@
     "dist:arch": "cross-env ELECTRON_DIST=1 vite build && electron-builder --linux pacman --publish never",
     "dist:appimage": "cross-env ELECTRON_DIST=1 vite build && electron-builder --linux AppImage --publish never",
     "dist:win": "cross-env ELECTRON_DIST=1 vite build && electron-builder --win --publish never",
-    "dist:mac": "cross-env ELECTRON_DIST=1 vite build && electron-builder --mac --universal --publish never"
+    "dist:mac": "cross-env ELECTRON_DIST=1 vite build && electron-builder --mac --universal --publish never",
+    "test": "node --test tests/*.test.cjs tests/*.test.mjs"
   },
   "dependencies": {
     "approve": "^0.0.12",
+    "hls.js": "1.6.13",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "scripts": "^0.1.0"
@@ -63,6 +65,7 @@
       "src/ipc/**/*",
       "index.js",
       "preload.js",
+      "popout-preload.js",
       "package.json",
       "!**/*.map",
       "!**/*.md",
@@ -181,11 +184,16 @@
     ],
     "asarUnpack": [
       "src/styles/fonts/**"
-    ]
+    ],
+    "publish": []
   },
   "allowScripts": {
     "electron@40.10.6": true,
     "electron-winstaller@5.4.0": true,
     "esbuild@0.28.1": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FrankLee088/streambert.git"
   }
 }

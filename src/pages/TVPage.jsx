@@ -1,3 +1,5 @@
+import PlaybackStatus from "../components/PlaybackStatus";
+import PlaybackQuality from "../components/PlaybackQuality";
 import {
   useState,
   useEffect,
@@ -751,6 +753,7 @@ export default function TVPage({
               .setPlayerVideo({
                 url: res.url,
                 referer: res.referer || "https://allmanga.to",
+                isHls: res.isDirectMp4 === false,
                 startTime,
               })
               .then((r) => {
@@ -1162,9 +1165,6 @@ export default function TVPage({
     if (!playing) return;
     const wv = webviewRef.current;
     if (!wv) return;
-    const done = () => setWebviewLoading(false);
-    wv.addEventListener("did-finish-load", done);
-    wv.addEventListener("did-fail-load", done);
 
     // Poll up to 30s for video duration (metadata may load after buffering starts)
     let attempts = 0;
@@ -1187,8 +1187,6 @@ export default function TVPage({
     }, 1000);
 
     return () => {
-      wv.removeEventListener("did-finish-load", done);
-      wv.removeEventListener("did-fail-load", done);
       clearInterval(pollDuration);
     };
   }, [playing, playerSource, item.id, selectedEp?.episode_number]);
@@ -1787,6 +1785,16 @@ export default function TVPage({
                 className={`player-wrap${playerFullscreen ? " player-wrap--fullscreen" : ""}`}
                 ref={playerWrapRef}
               >
+            <PlaybackStatus
+              webviewRef={webviewRef}
+              sourceKey={`${item.id}:${selectedSeason}:${selectedEp?.episode_number}:${playerSource}:${dubMode}:${resolvedPlayerUrl || ""}`}
+              active={!pipOpen}
+              onLoading={setWebviewLoading}
+              onNextSource={() => {
+                const next = getNextNonAsyncSource(playerSource);
+                if (next) setPlayerSource(next);
+              }}
+            />
                 {/* Universal source-loading overlay, shown instantly on every source/episode switch */}
                 {webviewLoading && !resolveError && (
                   <div
@@ -2093,6 +2101,13 @@ export default function TVPage({
                 />
                 {/* Left-side overlay button group, flex row, no fixed px offsets */}
                 <div className="player-overlay-group">
+                  <PlaybackQuality
+                    webviewRef={webviewRef}
+                    pipIdRef={pipWebContentsIdRef}
+                    pipOpen={pipOpen}
+                    defaultQuality={playerSettings?.quality}
+                    sourceKey={`${item.id}:${playerSource}:${playerEp?.season}:${playerEp?.episode}`}
+                  />
                   <button
                     ref={sourceRef}
                     className="player-overlay-btn"

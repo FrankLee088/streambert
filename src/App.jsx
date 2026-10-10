@@ -95,7 +95,11 @@ export default function App() {
       ? (ACCENT_PRESETS.find((p) => p.id === accentId)?.color ?? null)
       : null;
     const subtitleLang = storage.get(STORAGE_KEYS.SUBTITLE_LANG) || null;
-    return { accentColor: accentHex, subtitleLang };
+    return {
+      accentColor: accentHex,
+      subtitleLang,
+      quality: storage.get(STORAGE_KEYS.PLAYBACK_QUALITY) || "auto",
+    };
   };
   const [playerSettings, setPlayerSettings] = useState(readPlayerSettings);
 

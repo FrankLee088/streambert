@@ -1,3 +1,5 @@
+import PlaybackStatus from "../components/PlaybackStatus";
+import PlaybackQuality from "../components/PlaybackQuality";
 import {
   useState,
   useEffect,
@@ -362,6 +364,7 @@ export default function MoviePage({
               .setPlayerVideo({
                 url: res.url,
                 referer: res.referer || "https://allmanga.to",
+                isHls: res.isDirectMp4 === false,
                 startTime,
               })
               .then((r) => {
@@ -534,20 +537,6 @@ export default function MoviePage({
       } catch {}
     };
   }, [playing, gamepadEnabled]);
-
-  // Attach webview load events so we know when the new source has painted
-  useEffect(() => {
-    if (!playing) return;
-    const wv = webviewRef.current;
-    if (!wv) return;
-    const done = () => setWebviewLoading(false);
-    wv.addEventListener("did-finish-load", done);
-    wv.addEventListener("did-fail-load", done);
-    return () => {
-      wv.removeEventListener("did-finish-load", done);
-      wv.removeEventListener("did-fail-load", done);
-    };
-  }, [playing, playerSource, item.id]);
 
   // ── Auto-track progress + auto-watched every 5s ──────────────────────────
   useEffect(() => {
@@ -917,6 +906,16 @@ export default function MoviePage({
             className={`player-wrap${playerFullscreen ? " player-wrap--fullscreen" : ""}`}
             ref={playerWrapRef}
           >
+            <PlaybackStatus
+              webviewRef={webviewRef}
+              sourceKey={`${item.id}:${playerSource}:${dubMode}:${resolvedPlayerUrl || ""}`}
+              active={!pipOpen}
+              onLoading={setWebviewLoading}
+              onNextSource={() => {
+                const next = getNextNonAsyncSource(playerSource);
+                if (next) setPlayerSource(next);
+              }}
+            />
             {/* Universal source-loading overlay, shown instantly on every source/item switch */}
             {webviewLoading && !resolveError && (
               <div
@@ -1050,6 +1049,13 @@ export default function MoviePage({
             />
             {/* Left-side overlay button group, flex row, no fixed px offsets */}
             <div className="player-overlay-group">
+                  <PlaybackQuality
+                    webviewRef={webviewRef}
+                    pipIdRef={pipWebContentsIdRef}
+                    pipOpen={pipOpen}
+                    defaultQuality={playerSettings?.quality}
+                    sourceKey={`${item.id}:${playerSource}`}
+                  />
               <button
                 ref={sourceRef}
                 className="player-overlay-btn"

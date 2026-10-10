@@ -12,6 +12,9 @@ const {
 } = require("electron");
 const path = require("path");
 
+// Optional fallback for machines with broken GPU/video drivers.
+if (process.env.STREAMBERT_DISABLE_GPU === "1") app.disableHardwareAcceleration();
+
 // -- RAM / performance flags ---------------------------------------------------
 app.commandLine.appendSwitch(
   "js-flags",
@@ -244,11 +247,13 @@ function createWindow() {
     },
   );
 
-  // -- Lazy session setup ----------------------------------------------------
-  // Player/trailer sessions are configured on the first webview attach or
-  // when the pop-out window opens, whichever comes first.
+  // Configure sessions before a guest begins its first navigation.
+  if (!sessionsConfigured) {
+    setupSession(session.fromPartition("persist:player"), session.fromPartition("persist:trailer"));
+    sessionsConfigured = true;
+  }
 
-  // Block popups from webviews, intercept fullscreen, lazy-init sessions
+  // Block popups from webviews and intercept fullscreen
   mainWindow.webContents.on("did-attach-webview", (_, wc) => {
     if (!sessionsConfigured) {
       sessionsConfigured = true;

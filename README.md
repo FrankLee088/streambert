@@ -7,6 +7,8 @@
 [![Codeberg](https://img.shields.io/badge/Codeberg-truelockmc%2Fstreambert-2185D0?style=for-the-badge&logo=codeberg)](https://codeberg.org/truelockmc/streambert)
 [![AUR Version](https://img.shields.io/aur/version/streambert-bin?style=for-the-badge&logo=archlinux)](https://aur.archlinux.org/packages/streambert-bin)
 # Streambert
+Playback repair details and verification: [playback repair](docs/playback-repair.md).
+
 A cross-platform Electron Desktop App to stream and download any Movie, TV Series or Anime in the World. Zero Ads and Tracking[*](#privacy-disclaimer) <br></br>
 <a href="https://trendshift.io/repositories/31115" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/31115" alt="truelockmc%2Fstreambert | Trendshift" width="250" height="55"/></a>
 
@@ -39,6 +41,20 @@ A cross-platform Electron Desktop App to stream and download any Movie, TV Serie
 ## Streaming
 The Application mainly gets Video Streams from VidSrc (you can also Stream from videasy and vidking). <br></br>
 It fetches Information for Images, Info Texts, Search and Homepage from [tmdb](https://www.themoviedb.org/).
+
+### Playback quality
+
+Movie and TV players include an **Auto / Full HD (1080p) / 2K (1440p) / 4K (2160p)** selector.
+Choose a default under **Settings → Appearance → Default playback quality**, then click **Save**.
+Changing quality during playback does not change the saved default. The default is included in settings backups.
+
+Quality switching supports exposed HLS.js, JWPlayer, and Video.js quality-level interfaces,
+including players inside nested frames and pop-out windows. A source must actually provide
+the requested rendition. If it is unavailable or the embedded player keeps its controls private,
+Streambert leaves playback unchanged and shows a message; use the source's own quality menu
+when available. The selector does not upscale videos or guarantee 2K/4K availability.
+
+Run the quality adapter checks with `node --test tests/playerQuality.test.cjs`.
 
 ---
 

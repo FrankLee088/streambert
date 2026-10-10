@@ -3908,3 +3908,29 @@ html[data-win-titlebar][data-maximized] .main {
 .episode-check-item:hover {
     color: var(--text) !important;
 }
+
+.playback-quality { position: relative; }
+.playback-quality select { max-width: 160px; cursor: pointer; }
+.playback-quality option, #default-playback-quality { background: var(--surface2); color: var(--text); }
+#default-playback-quality { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; }
+.playback-quality-status {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 260px;
+    padding: 8px;
+    border-radius: 6px;
+    background: var(--surface2);
+    color: var(--text2);
+    font-size: 12px;
+}
+.playback-quality:hover .playback-quality-status,
+.playback-quality:focus-within .playback-quality-status { display: block; }
+.player-wrap:focus-within .player-overlay-group { opacity: 1; }
+
+/* Recovery remains reachable even while a provider is loading or displays black. */
+.playback-recovery { position:absolute; right:12px; bottom:12px; z-index:21; display:flex; gap:8px; }
+.playback-recovery .btn { padding:6px 10px; font-size:12px; background:rgba(20,20,20,.85); color:#fff; }
+.playback-error { position:absolute; inset:0; z-index:21; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:40px; background:#101010; color:#fff; text-align:center; }
+.playback-error > div { display:flex; gap:12px; }

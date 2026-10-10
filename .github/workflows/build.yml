@@ -1,6 +1,11 @@
 name: Build & Upload MacOS Artifacts
 on:
   workflow_dispatch:
+  push:
+    branches: [fix/playback-black-screen-20261010]
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -12,7 +17,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Cache deps
@@ -26,7 +31,11 @@ jobs:
 
       - name: Install deps
         run: npm ci
+      - name: Playback regression tests
+        run: npm test
       - name: Build macOS (universal)
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: npm run dist:mac
 
       - name: Upload macOS artifacts
@@ -36,3 +45,4 @@ jobs:
           path: |
             dist/*.dmg
             dist/*.zip
+            docs/macos-install-zh.md
