@@ -8,6 +8,7 @@ const { createPlaybackServer } = require("../src/ipc/playbackServer");
 app.setPath("userData", process.env.STREAMBERT_TEST_PROFILE);
 app.disableHardwareAcceleration();
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
+app.commandLine.appendSwitch("use-mock-keychain");
 let win, upstream, playerUrl;
 const player = createPlaybackServer();
 const movie = { id: 101, title: "Playback Test Movie", media_type: "movie", release_date: "2020-01-01", genre_ids: [28], original_language: "en" };

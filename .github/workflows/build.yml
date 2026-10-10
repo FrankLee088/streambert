@@ -37,6 +37,20 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: npm run dist:mac
+      - name: Electron playback on macOS
+        env:
+          STREAMBERT_FIXTURES: ${{ github.workspace }}/tests/fixtures
+          STREAMBERT_TEST_PROFILE: ${{ runner.temp }}/streambert-playback-test
+        run: |
+          mkdir -p "$STREAMBERT_TEST_PROFILE"
+          npx --no-install electron tests/electron-playback.cjs
+      - name: Movie and TV recovery on macOS
+        env:
+          STREAMBERT_FIXTURES: ${{ github.workspace }}/tests/fixtures
+          STREAMBERT_TEST_PROFILE: ${{ runner.temp }}/streambert-ui-test
+        run: |
+          mkdir -p "$STREAMBERT_TEST_PROFILE"
+          npx --no-install electron tests/electron-ui.cjs
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
