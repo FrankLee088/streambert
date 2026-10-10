@@ -31,6 +31,7 @@ import {
   NON_ANIME_DEFAULT_SOURCE,
   NEEDS_INTERCEPT,
   getNextNonAsyncSource,
+  normalizePlayerSource,
 } from "../utils/api";
 import {
   BookmarkIcon,
@@ -399,7 +400,7 @@ export default function TVPage({
   const [m3u8Url, setM3u8Url] = useState(null);
   const [interceptedSubs, setInterceptedSubs] = useState([]);
   const [playerSource, setPlayerSource] = useState(
-    () => storage.get("playerSource") || NON_ANIME_DEFAULT_SOURCE,
+    () => normalizePlayerSource(storage.get("playerSource"), "tv"),
   );
   // Accent colour + subtitle lang come from App-level state (via props),
   // so they are always fresh after Settings save without any extra storage reads.
@@ -697,7 +698,7 @@ export default function TVPage({
       if (currentSrc?.tag) {
         const saved = storage.get("playerSource");
         const savedSrc = PLAYER_SOURCES.find((s) => s.id === saved);
-        setPlayerSource(!savedSrc?.tag ? saved : NON_ANIME_DEFAULT_SOURCE);
+        setPlayerSource(!savedSrc?.tag ? normalizePlayerSource(saved, "tv") : normalizePlayerSource(null, "tv"));
       }
     }
     return () => {
@@ -714,7 +715,8 @@ export default function TVPage({
     // Auto-failover: if a previous attempt taught us AllManga doesn't have
     // this episode, skip straight to the cached fallback source.
     if (isAsync) {
-      const cached = getFailoverSource(epKey);
+      const cachedSource = getFailoverSource(epKey);
+      const cached = cachedSource ? normalizePlayerSource(cachedSource, "tv") : null;
       if (cached && cached !== playerSource) {
         setM3u8Url(null);
         setInterceptedSubs([]);
@@ -773,7 +775,7 @@ export default function TVPage({
         } else {
           // AllManga doesn't have this episode → switch to the next source
           // automatically and remember the choice for next time.
-          const next = getNextNonAsyncSource(playerSource);
+          const next = getNextNonAsyncSource(playerSource, "tv");
           if (next) {
             setFailoverSource(epKey, next);
             setM3u8Url(null);
@@ -1788,10 +1790,13 @@ export default function TVPage({
             <PlaybackStatus
               webviewRef={webviewRef}
               sourceKey={`${item.id}:${selectedSeason}:${selectedEp?.episode_number}:${playerSource}:${dubMode}:${resolvedPlayerUrl || ""}`}
+              sourceId={playerSource}
+              mediaType="tv"
+              contentKey={`tv:${item.id}:${selectedSeason}:${selectedEp?.episode_number}:${dubMode}`}
               active={!pipOpen}
               onLoading={setWebviewLoading}
-              onNextSource={() => {
-                const next = getNextNonAsyncSource(playerSource);
+              onNextSource={(requested) => {
+                const next = requested || getNextNonAsyncSource(playerSource, "tv");
                 if (next) setPlayerSource(next);
               }}
             />
@@ -2203,7 +2208,7 @@ export default function TVPage({
                     style={{ top: menuPos.top, left: menuPos.left }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {PLAYER_SOURCES.map((src) => (
+                    {PLAYER_SOURCES.filter(src => !src.moviesOnly).map((src) => (
                       <button
                         key={src.id}
                         className={

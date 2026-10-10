@@ -24,6 +24,7 @@ import {
   NON_ANIME_DEFAULT_SOURCE,
   NEEDS_INTERCEPT,
   getNextNonAsyncSource,
+  normalizePlayerSource,
 } from "../utils/api";
 import {
   PlayIcon,
@@ -94,7 +95,7 @@ export default function MoviePage({
   const [m3u8Url, setM3u8Url] = useState(null);
   const [interceptedSubs, setInterceptedSubs] = useState([]);
   const [playerSource, setPlayerSource] = useState(
-    () => storage.get("playerSource") || NON_ANIME_DEFAULT_SOURCE,
+    () => normalizePlayerSource(storage.get("playerSource"), "movie"),
   );
 
   // Accent colour + subtitle lang come from App-level state (via props),
@@ -309,7 +310,7 @@ export default function MoviePage({
       if (currentSrc?.tag) {
         const saved = storage.get("playerSource");
         const savedSrc = PLAYER_SOURCES.find((s) => s.id === saved);
-        setPlayerSource(!savedSrc?.tag ? saved : NON_ANIME_DEFAULT_SOURCE);
+        setPlayerSource(!savedSrc?.tag ? normalizePlayerSource(saved, "movie") : normalizePlayerSource(null, "movie"));
       }
     }
     return () => {
@@ -325,7 +326,8 @@ export default function MoviePage({
     // Auto-failover: if a previous attempt taught us AllManga doesn't have
     // this title, skip straight to the cached fallback source.
     if (sourceIsAsync(playerSource)) {
-      const cached = getFailoverSource(epKey);
+      const cachedSource = getFailoverSource(epKey);
+      const cached = cachedSource ? normalizePlayerSource(cachedSource, "movie") : null;
       if (cached && cached !== playerSource) {
         setM3u8Url(null);
         setInterceptedSubs([]);
@@ -383,7 +385,7 @@ export default function MoviePage({
         } else {
           // AllManga doesn't have this title → switch to the next source
           // automatically and remember the choice for next time.
-          const next = getNextNonAsyncSource(playerSource);
+          const next = getNextNonAsyncSource(playerSource, "movie");
           if (next) {
             setFailoverSource(epKey, next);
             setM3u8Url(null);
@@ -909,10 +911,13 @@ export default function MoviePage({
             <PlaybackStatus
               webviewRef={webviewRef}
               sourceKey={`${item.id}:${playerSource}:${dubMode}:${resolvedPlayerUrl || ""}`}
+              sourceId={playerSource}
+              mediaType="movie"
+              contentKey={`movie:${item.id}:${dubMode}`}
               active={!pipOpen}
               onLoading={setWebviewLoading}
-              onNextSource={() => {
-                const next = getNextNonAsyncSource(playerSource);
+              onNextSource={(requested) => {
+                const next = requested || getNextNonAsyncSource(playerSource, "movie");
                 if (next) setPlayerSource(next);
               }}
             />

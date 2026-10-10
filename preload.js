@@ -110,6 +110,8 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.invoke("control-playback-quality", webContentsId, quality),
   queryVideoProgress: (webContentsId) =>
     ipcRenderer.invoke("query-video-progress", webContentsId),
+  queryPlayerHealth: (webContentsId) =>
+    ipcRenderer.invoke("query-player-health", webContentsId),
   clearWatchData: () => ipcRenderer.invoke("clear-watch-data"),
   deleteAllDownloads: () => ipcRenderer.invoke("delete-all-downloads"),
   resetApp: () => ipcRenderer.invoke("reset-app"),

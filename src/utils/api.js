@@ -116,130 +116,11 @@ export const tmdbFetch = async (path, apiKey) => {
 };
 
 // Documentation:
-// https://www.videasy.to/docs
 // https://vsembed.su/api/
-// https://www.vidking.net/#documentation
 
-// ── Player Sources ────────────────────────────────────────────────────────────
-// supportsProgress: true = executeJavaScript tracking works for this source
-export const PLAYER_SOURCES = [
-  {
-    id: "videasy",
-    label: "Videasy",
-    tag: null,
-    note: null,
-    supportsProgress: true,
-    colorParam: "color", // hex without # → e.g. "e50914"
-    langParam: null, // no subtitle lang param
-    params: {
-      overlay: "true",
-    },
-    movieUrl: (id) => `https://player.videasy.to/movie/${id}`,
-    tvUrl: (id, season, ep) =>
-      `https://player.videasy.to/tv/${id}/${season}/${ep}`,
-  },
-  {
-    id: "vidsrc",
-    label: "VidSrc",
-    tag: null,
-    note: null,
-    supportsProgress: true,
-    progressViaFrames: true, // video is in a nested iframe, needs main-process frame query
-    colorParam: null, // vidsrc doesn't support color param
-    langParam: "ds_lang", // ISO 639-1 language code
-    params: {},
-    movieUrl: (id) => `https://vsembed.su/embed/movie/${id}`,
-    tvUrl: (id, season, ep) =>
-      `https://vsembed.su/embed/tv/${id}/${season}/${ep}`,
-  },
-  {
-    id: "vidking",
-    label: "Vidking",
-    tag: null,
-    note: null,
-    supportsProgress: true,
-    colorParam: "color", // hex without # → e.g. "e50914"
-    langParam: null,
-    params: {
-      autoPlay: "true",
-    },
-    movieUrl: (id) => `https://www.vidking.net/embed/movie/${id}`,
-    tvUrl: (id, season, ep) =>
-      `https://www.vidking.net/embed/tv/${id}/${season}/${ep}`,
-  },
-  {
-    id: "allmanga",
-    label: "AllManga",
-    tag: "ANIME",
-    note: null,
-    supportsProgress: true,
-    async: true,
-    params: {},
-    movieUrl: (_id) => "https://allmanga.to",
-    tvUrl: (_id, _season, _ep) => "https://allmanga.to",
-  },
-];
-export const getSourceUrl = (
-  sourceId,
-  type,
-  id,
-  season,
-  ep,
-  extraParams = {},
-  // Optional: accent hex (with or without #) and subtitle ISO lang code
-  accentColor = null,
-  subtitleLang = null,
-) => {
-  const src =
-    PLAYER_SOURCES.find((s) => s.id === sourceId) ?? PLAYER_SOURCES[0];
-  const baseUrl =
-    type === "movie" ? src.movieUrl(id) : src.tvUrl(id, season, ep);
-  const url = new URL(baseUrl);
-
-  Object.entries(src.params || {}).forEach(([key, value]) => {
-    url.searchParams.set(key, value);
-  });
-
-  // Inject accent color into the player if the source supports it
-  if (accentColor && src.colorParam) {
-    url.searchParams.set(src.colorParam, accentColor.replace(/^#/, ""));
-  }
-
-  if (subtitleLang && src.langParam) {
-    url.searchParams.set(src.langParam, subtitleLang);
-  }
-
-  Object.entries(extraParams).forEach(([key, value]) => {
-    if (value != null) {
-      url.searchParams.set(key, value);
-    }
-  });
-
-  return url.toString();
-};
-
-export const sourceSupportsProgress = (sourceId) =>
-  PLAYER_SOURCES.find((s) => s.id === sourceId)?.supportsProgress ?? false;
-
-export const sourceProgressViaFrames = (sourceId) =>
-  PLAYER_SOURCES.find((s) => s.id === sourceId)?.progressViaFrames ?? false;
-
-export const sourceIsAsync = (sourceId) =>
-  PLAYER_SOURCES.find((s) => s.id === sourceId)?.async ?? false;
-
-// Return the next non-async source after `currentId` in PLAYER_SOURCES order
-export const getNextNonAsyncSource = (currentId) => {
-  const nonAsync = PLAYER_SOURCES.filter((s) => !s.async);
-  if (nonAsync.length === 0) return null;
-  const idx = nonAsync.findIndex((s) => s.id === currentId);
-  // If currentId is itself non-async, return the next one (wrap around).
-  // If currentId is async (e.g. AllManga), just return the first non-async.
-  if (idx < 0) return nonAsync[0].id;
-  return nonAsync[(idx + 1) % nonAsync.length].id;
-};
-
-// Sources that require a transparent webRequest intercept to load properly
-export const NEEDS_INTERCEPT = ["vidsrc"];
+// Source definitions include the upstream new-sources branch's movie provider.
+export { PLAYER_SOURCES, getSourceUrl, sourceSupportsProgress, sourceProgressViaFrames,
+  sourceIsAsync, getNextNonAsyncSource, normalizePlayerSource, NEEDS_INTERCEPT } from "./playerSources.mjs";
 
 // ── AniList API (anime metadata) ──────────────────────────────────────────────
 const ANILIST_API = "https://graphql.anilist.co";
@@ -451,7 +332,7 @@ export const isAnimeContent = (item, details) => {
 
 // Default sources
 export const ANIME_DEFAULT_SOURCE = "allmanga";
-export const NON_ANIME_DEFAULT_SOURCE = "vidking";
+export const NON_ANIME_DEFAULT_SOURCE = "vidsrc";
 
 // ── Episode Group fetch (localStorage + in-memory cache, 7-day TTL) ─────────
 // Episode groups almost never change -> cache aggressively across sessions.

@@ -45,3 +45,35 @@ test("renderer crash is reported and disposal removes handlers/timers", async ()
   watcher.dispose(); const count = states.length;
   view.emit("dom-ready"); await new Promise(resolve => setTimeout(resolve, 30)); assert.equal(states.length, count);
 });
+
+test("a loaded provider document can later fail verification", async t => {
+  const view = new Webview(); const states = [];
+  const watcher = watchPlayer(view, s => states.push(s), {
+    inspect: async () => ({ state: "verification-failed" }), pollInterval: 5,
+  }); t.after(() => watcher.dispose());
+  view.emit("dom-ready");
+  await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal(states.at(-1).kind, "verification-failed");
+  view.emit("dom-ready");
+  assert.match(states.at(-1).error, /verification failed/);
+});
+test("verification awaiting user action is visible without becoming an error", async t => {
+  const view = new Webview(); const states = [];
+  const watcher = watchPlayer(view, s => states.push(s), {
+    inspect: async () => ({ state: "verification-required" }), pollInterval: 5,
+  }); t.after(() => watcher.dispose()); view.emit("dom-ready");
+  await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal(states.at(-1).error, null);
+  assert.match(states.at(-1).notice, /Complete this source/);
+});
+test("inspection from a previous navigation cannot fail the new source", async t => {
+  const view = new Webview(); const states = []; let resolve;
+  const watcher = watchPlayer(view, s => states.push(s), {
+    inspect: () => new Promise(r => { resolve = r; }),
+  }); t.after(() => watcher.dispose()); view.emit("dom-ready");
+  await new Promise(r => setTimeout(r, 10));
+  view.emit("did-start-navigation", { isMainFrame: true, url: "https://another.example/player" });
+  resolve({ state: "verification-failed" });
+  await new Promise(r => setTimeout(r, 10));
+  assert.deepEqual(states.at(-1), { loading: true, error: null });
+});

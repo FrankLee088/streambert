@@ -3934,3 +3934,5 @@ html[data-win-titlebar][data-maximized] .main {
 .playback-recovery .btn { padding:6px 10px; font-size:12px; background:rgba(20,20,20,.85); color:#fff; }
 .playback-error { position:absolute; inset:0; z-index:21; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:40px; background:#101010; color:#fff; text-align:center; }
 .playback-error > div { display:flex; gap:12px; }
+
+.playback-notice { position:absolute; left:12px; right:12px; top:64px; z-index:21; padding:10px 14px; border-radius:8px; background:rgba(20,20,20,.9); color:#fff; font-size:13px; pointer-events:none; }

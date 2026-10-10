@@ -38,3 +38,17 @@ Run `npx vite build` before the full UI test. Test profiles must be disposable, 
 For GPU-driver troubleshooting, launch with `STREAMBERT_DISABLE_GPU=1`; the default continues to use hardware acceleration.
 
 Prepared with Codex. No upstream PR or release publication is included.
+
+## Follow-up: provider verification failure (2.6.1)
+
+The user's installed 2.6.0 repair loads VidSrc but displays `Verification failed. Please reload.`. The maintainer confirmed on 2026-09-29 that Videasy and Vidking had stopped operating: [issue 183, maintainer comment](https://github.com/truelockmc/streambert/issues/183#issuecomment-5895406438). Cycling those old providers could not restore playback.
+
+- Removed those retired providers, including old saved/cached selections. Movie selections normalize to Peachify; TV selections normalize to VidSrc.
+- Added Peachify from upstream's [new-sources branch, commit 66a9048](https://github.com/truelockmc/streambert/blob/66a904814cbdb6a4a98ef0f659f366583e3d1e62/src/utils/api.js). Upstream labels it movies only; it is excluded from TV menus and fallback.
+- Removed the hardcoded Windows Chrome 124 user agent; Electron now sends its native platform and browser version. Preserved provider CSP and frame security headers instead of stripping them globally.
+- Inspect all player frames for a narrow, explicit terminal verification failure. Movies can switch to an untried source once; the recovery stops when no alternative remains. A decoded video takes precedence over unrelated frame messages.
+- Interactive verification is left visible for the user. Read-only inspection never completes verification or changes a provider's response. The user can retry or open the source in their browser; browser and app cookies are separate.
+
+22 regression tests pass locally. The actual Electron UI test reproduces a cross-origin verification failure, verifies movie source recovery with decoded video, bounded failure handling, native UA, effective provider CSP, interactive verification and TV recovery when the fixture provider becomes available. MP4/HLS decoding tests also pass. Tests use synthetic pages and media, and software rendering; they do not establish live-provider availability or hardware decoding.
+
+The managed environment does not allow the provider domains, so live playback on VidSrc or Peachify has not been verified. Peachify is an upstream-supplied replacement, not a confirmed working source on the user's network. A remote verification rejection or a provider outage can still prevent playback. Do not describe this build as a guaranteed complete repair of live playback.

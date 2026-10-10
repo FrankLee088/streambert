@@ -663,6 +663,15 @@ function register(getMainWindow, { writeSecretMigration }) {
     return fallback;
   });
 
+  // Terminal errors may appear inside a cross-origin provider iframe.
+  ipcMain.handle("query-player-health", async (_, id) => {
+    const { webContents, session } = require("electron");
+    const wc = Number.isInteger(id) ? webContents.fromId(id) : null;
+    if (!wc || wc.isDestroyed() || wc.session !== session.fromPartition("persist:player")) return null;
+    const { queryPlayerHealth } = require("./playerHealth");
+    try { return await queryPlayerHealth(wc); } catch { return null; }
+  });
+
   // ── Query video progress across all webview frames ────────────────────────
   // executeJavaScript on a webview only reaches the top frame.
   // VidSrc / 2embed nest the player inside cross-origin iframes, iterate

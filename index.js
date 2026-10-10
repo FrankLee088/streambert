@@ -110,29 +110,8 @@ const playerWcIds = new Set();
 let sessionsConfigured = false;
 
 function setupSession(playerSession, trailerSession) {
-  const stripHeaders = (details, callback) => {
-    const headers = { ...details.responseHeaders };
-    for (const key of Object.keys(headers)) {
-      const lower = key.toLowerCase();
-      if (lower === "x-frame-options" || lower === "content-security-policy")
-        delete headers[key];
-    }
-    callback({ responseHeaders: headers });
-  };
-
-  const UA =
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
-  playerSession.setUserAgent(UA);
-  trailerSession.setUserAgent(UA);
-
-  playerSession.webRequest.onHeadersReceived(
-    { urls: ["*://*/*"] },
-    stripHeaders,
-  );
-  trailerSession.webRequest.onHeadersReceived(
-    { urls: ["*://*/*"] },
-    stripHeaders,
-  );
+  // Keep Electron's real platform/version and the provider's security headers.
+  // A webview is a top-level guest, so iframe-header removal is unnecessary.
 
   // Trailer: block ads only (no media intercept needed)
   trailerSession.webRequest.onBeforeRequest({ urls: BLOCKED_HOSTS }, (_, cb) =>
