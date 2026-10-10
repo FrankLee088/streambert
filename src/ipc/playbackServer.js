@@ -43,8 +43,8 @@ if(!config.isHls){video.src=config.src;}
 else {
   const script=document.createElement('script');
   script.src='${prefix}/hls.js';
-  const timer=setTimeout(()=>fail('The HLS player could not load. Check your connection and retry.'),15000);
-  script.onerror=()=>{clearTimeout(timer);fail('The HLS player could not load. Check your connection and retry.');};
+  const timer=setTimeout(()=>fail('The video player could not load. Retry or reinstall Streambert.'),15000);
+  script.onerror=()=>{clearTimeout(timer);fail('The video player could not load. Retry or reinstall Streambert.');};
   script.onload=()=>{
     clearTimeout(timer);
     if(!window.Hls?.isSupported()){
@@ -113,7 +113,10 @@ function createPlaybackServer({ timeout = 20000 } = {}) {
       let url;
       try { url = mediaUrl(target); }
       catch { fail(400, "Invalid media URL"); return; }
-      const headers = { "User-Agent": "Mozilla/5.0", Referer: config.referer, Accept: "*/*", "Accept-Encoding": "identity" };
+      const headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0",
+        Referer: config.referer, Accept: "*/*", "Accept-Encoding": "identity",
+      };
       if (req.headers.range) headers.Range = req.headers.range;
       if (req.headers["if-range"]) headers["If-Range"] = req.headers["if-range"];
       const transport = url.protocol === "https:" ? https : http;

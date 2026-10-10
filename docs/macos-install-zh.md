@@ -34,6 +34,7 @@ STREAMBERT_DISABLE_GPU=1 /Applications/Streambert.app/Contents/MacOS/Streambert
 - Linux 上的真实 Electron 已成功解码本地测试 MP4/HLS 并推进播放时间。
 - 完整应用中的电影、剧集页面已验证从模拟视频源故障切换恢复画面。
 - Apple 芯片和 Intel 应用目录已交叉打包并检查内部依赖。
-- 真实 Mac 运行和线上第三方视频源尚未验证。此版本修复的是已确认的代码缺陷，不能保证第三方视频源始终可用。
+- GitHub macOS 构建机上的真实 Electron MP4/HLS 播放、电影和剧集换源恢复测试也已通过，通用 DMG 构建成功。
+- 你自己的 Mac 上安装后的表现和线上第三方视频源尚未验证。此版本修复的是已确认的代码缺陷，不能保证第三方视频源始终可用。
 
 开发者验证细节见 [playback-repair.md](playback-repair.md)。

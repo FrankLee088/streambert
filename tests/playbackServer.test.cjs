@@ -17,6 +17,7 @@ test("MP4 redirects preserve query, port, range and per-player Referer", async t
     if (req.url === "/redirect") { res.writeHead(302, { Location: "/movie.mp4?signature=abc" }); res.end(); return; }
     assert.equal(req.url, "/movie.mp4?signature=abc");
     assert.equal(req.headers.referer, "https://source.example/movie");
+    assert.match(req.headers["user-agent"], /Firefox\/121\.0/);
     assert.equal(req.headers.range, "bytes=2-5");
     res.writeHead(206, { "Content-Type": "video/mp4", "Content-Length": "4", "Content-Range": "bytes 2-5/10", "Accept-Ranges": "bytes" }); res.end("2345");
   });

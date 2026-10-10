@@ -17,7 +17,7 @@ This repair preserves the 1440p/2160p quality controls from the earlier macOS so
 `npm test` passes 16 regression tests, including the six existing quality tests.
 Vite production build passes. Electron 40.10.6 on Linux decoded synthetic MP4 and HLS video at 320×180 and advanced playback time with external requests blocked. The full built app's movie and TV pages recovered from a synthetic provider outage and decoded video after changing source. Both x64 and arm64 macOS application directories were cross-packaged; their ASAR contents include the HLS library and both preloads.
 
-Real macOS execution, audio output hardware and live third-party source availability have **not** been verified. Synthetic fixtures are not evidence that an unavailable external provider has recovered. The macOS packages are not Developer ID signed or notarized.
+GitHub Actions run 38038319089 additionally passed the real Electron MP4/HLS playback and complete movie/TV recovery checks on a macOS runner, and produced a universal DMG. Installed-app behavior on the user's own Mac, audio output hardware and live third-party source availability have **not** been verified. Synthetic fixtures are not evidence that an unavailable external provider has recovered. The macOS packages are not Developer ID signed or notarized.
 
 ## Reproduce Electron checks
 
